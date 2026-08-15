@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#050505">
+<link rel="preconnect" href="https://cdn.emulatorjs.org" crossorigin>
+<link rel="dns-prefetch" href="//cdn.emulatorjs.org">
+<title>Mario</title>
+<style>
+html,body{
+  margin:0;width:100%;height:100%;background:#050505;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+#game{position:fixed;inset:0;width:100%;height:100%}
+#loading{
+  position:fixed;inset:0;z-index:100;background:#050505;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+#loading img{
+  width:100%;height:100%;object-fit:contain;display:block;
+}
+#tap{
+  position:absolute;inset:0;
+  background:transparent;border:0;padding:0;margin:0;
+  cursor:pointer;
+}
+#hint{
+  position:absolute;left:50%;bottom:10px;transform:translateX(-50%);
+  color:#fff;background:#000a;padding:8px 12px;border-radius:10px;
+  font:600 13px Arial,sans-serif;white-space:nowrap;
+  display:none;
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="loading" aria-label="Toque para jogar">
+  <img src="loading.png" alt="Tela de carregamento Criaforma">
+  <button id="tap" aria-label="Toque para jogar"></button>
+  <div id="hint">O jogo já está carregado — toque para iniciar em tela cheia.</div>
+</div>
+
+<div id="game"></div>
+
+<script>
+window.EJS_player="#game";
+window.EJS_core="snes9x";
+window.EJS_gameUrl="./Mario%20Generico.smc";
+window.EJS_gameName="Mario Generico";
+window.EJS_pathtodata="https://cdn.emulatorjs.org/4.2.3/data/";
+window.EJS_startOnLoaded=true;
+window.EJS_fullscreenOnLoaded=false;
+window.EJS_controlScheme="snes";
+window.EJS_volume=1;
+window.EJS_cacheConfig={
+  enabled:true,
+  cacheMaxSizeMB:4096,
+  cacheMaxAgeMins:43200
+};
+
+const loading=document.getElementById("loading");
+const tap=document.getElementById("tap");
+const hint=document.getElementById("hint");
+let ready=false;
+
+const s=document.createElement("script");
+s.src="https://cdn.emulatorjs.org/4.2.3/data/loader.js";
+document.body.appendChild(s);
+
+const check=setInterval(()=>{
+  if(document.querySelector("#game canvas, #game iframe")){
+    ready=true;
+    clearInterval(check);
+    hint.style.display="block";
+  }
+},200);
+
+async function enterGame(){
+  try{
+    if(document.documentElement.requestFullscreen)
+      await document.documentElement.requestFullscreen();
+  }catch(e){}
+  try{
+    if(screen.orientation && screen.orientation.lock)
+      await screen.orientation.lock("landscape");
+  }catch(e){}
+  loading.classList.add("hidden");
+}
+
+tap.addEventListener("click", enterGame);
+loading.addEventListener("click", (e)=>{
+  if(e.target === loading || e.target === hint || e.target === tap) enterGame();
+});
+</script>
+</body>
+</html>
